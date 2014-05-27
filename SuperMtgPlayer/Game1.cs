@@ -7,6 +7,12 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Storage;
 using Microsoft.Xna.Framework.GamerServices;
+using Super;
+using Newtonsoft.Json;
+using System.IO;
+using SuperMtgPlayer.Logic.Player;
+using SuperMtgPlayer.Data;
+using SuperMtgPlayer.Display;
 #endregion
 
 namespace SuperMtgPlayer
@@ -18,12 +24,19 @@ namespace SuperMtgPlayer
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+        CardDataWrapper cardData;
+        IPlayer player = new Player();
+        SpriteFont font;
 
         public Game1()
             : base()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+
+            this.graphics.PreferredBackBufferWidth = 1920;
+            this.graphics.PreferredBackBufferHeight = 1080;
+            this.graphics.ApplyChanges();   
         }
 
         /// <summary>
@@ -34,7 +47,7 @@ namespace SuperMtgPlayer
         /// </summary>
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
+            Super.SuperContentManager.Global.Initialize(GraphicsDevice, Content);
 
             base.Initialize();
         }
@@ -48,7 +61,79 @@ namespace SuperMtgPlayer
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            // TODO: use this.Content to load your game content here
+            this.font = Content.Load<SpriteFont>("defaultFont");
+
+            // Load json data
+            string jsonfile = Path.Combine(Content.RootDirectory, "carddata.json");
+            using (StreamReader r = new StreamReader(jsonfile))
+            {
+                string json = r.ReadToEnd();
+                this.cardData = new CardDataWrapper(JsonConvert.DeserializeObject<OutputData>(json));
+            }
+
+            this.player.AddCardsToDeck(this.cardData.GetCards(new string[] {
+                                                                                "Mana Confluence",
+                                                                                "Mana Confluence",
+                                                                                "Mana Confluence",
+                                                                                "Mana Confluence",
+                                                                                "Plains",
+                                                                                "Plains",
+                                                                                "Plains",
+                                                                                "Plains",
+                                                                                "Plains",
+                                                                                "Plains",
+                                                                                "Plains",
+                                                                                "Plains",
+                                                                                "Plains",
+                                                                                "Plains",
+                                                                                "Plains",
+                                                                                "Plains",
+                                                                                "Plains",
+                                                                                "Plains",
+                                                                                "Plains",
+                                                                                "Plains",
+                                                                                "Plains",
+                                                                                "Plains",
+                                                                                "Banishing Light",
+                                                                                "Banishing Light",
+                                                                                "Banishing Light",
+                                                                                "Banishing Light",
+                                                                                "Oppressive Rays",
+                                                                                "Oppressive Rays",
+                                                                                "Oppressive Rays",
+                                                                                "Oppressive Rays",
+                                                                                "Ajani's Presence",
+                                                                                "Ajani's Presence",
+                                                                                "Ajani's Presence",
+                                                                                "Dawnbringer Charioteers",
+                                                                                "Dawnbringer Charioteers",
+                                                                                "Dawnbringer Charioteers",
+                                                                                "Godsend",
+                                                                                "Godsend",
+                                                                                "Aegis of the Gods",
+                                                                                "Aegis of the Gods",
+                                                                                "Aegis of the Gods",
+                                                                                "Launch the Fleet",
+                                                                                "Launch the Fleet",
+                                                                                "Launch the Fleet",
+                                                                                "Launch the Fleet",
+                                                                                "Oreskos Swiftclaw",
+                                                                                "Oreskos Swiftclaw",
+                                                                                "Oreskos Swiftclaw",
+                                                                                "Oreskos Swiftclaw",
+                                                                                "Nyx-Fleece Ram",
+                                                                                "Nyx-Fleece Ram",
+                                                                                "Nyx-Fleece Ram",
+                                                                                "Nyx-Fleece Ram",
+                                                                                "Font of Vigor",
+                                                                                "Font of Vigor",
+                                                                                "Skybind",
+                                                                                "Skybind",
+                                                                                "Quarry Colossus",
+                                                                                "Quarry Colossus"
+                                                                            }), true);
+
+            this.player.GameStart();
         }
 
         /// <summary>
@@ -71,6 +156,7 @@ namespace SuperMtgPlayer
                 Exit();
 
             // TODO: Add your update logic here
+            this.player.Update(gameTime);
 
             base.Update(gameTime);
         }
@@ -83,7 +169,16 @@ namespace SuperMtgPlayer
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            // TODO: Add your drawing code here
+            // Draw textures
+            this.spriteBatch.Begin();
+
+            List<SuperTexture> textures = DisplayFactory.Global.textures;
+            foreach(SuperTexture tex in textures)
+            {
+                this.spriteBatch.Draw(tex.texture, tex.drawRect, Color.White);
+            }
+
+            this.spriteBatch.End();
 
             base.Draw(gameTime);
         }
