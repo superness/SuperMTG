@@ -10,9 +10,10 @@ using Microsoft.Xna.Framework.GamerServices;
 using Super;
 using Newtonsoft.Json;
 using System.IO;
-using SuperMtgPlayer.Logic.Player;
+using SuperMtgPlayer.Logic;
 using SuperMtgPlayer.Data;
 using SuperMtgPlayer.Display;
+using SuperMtgPlayer.Factories;
 #endregion
 
 namespace SuperMtgPlayer
@@ -25,7 +26,7 @@ namespace SuperMtgPlayer
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         CardDataWrapper cardData;
-        IPlayer player = new Player();
+        Player player = new Player();
         SpriteFont font;
 
         public Game1()
@@ -36,7 +37,11 @@ namespace SuperMtgPlayer
 
             this.graphics.PreferredBackBufferWidth = 1920;
             this.graphics.PreferredBackBufferHeight = 1080;
-            this.graphics.ApplyChanges();   
+            this.graphics.ApplyChanges();
+
+            this.IsMouseVisible = true;
+
+            Globals.Global.localPlayer = player;
         }
 
         /// <summary>
@@ -155,8 +160,17 @@ namespace SuperMtgPlayer
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            // TODO: Add your update logic here
-            this.player.Update(gameTime);
+            SuperMouse.Global.Update();
+            SuperKeyboard.Global.Update();
+            Battlefield.Global.Update(gameTime);
+            BlendableFloatFactory.Global.Update(gameTime);
+            CardDisplayFactory.Global.Update(gameTime);
+            this.player.Update(gameTime, graphics);
+
+            if (SuperKeyboard.Global.KeyPress(Keys.Space))
+            {
+                this.player.DrawCard();
+            }
 
             base.Update(gameTime);
         }
@@ -170,12 +184,16 @@ namespace SuperMtgPlayer
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             // Draw textures
-            this.spriteBatch.Begin();
+            this.spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend);
 
-            List<SuperTexture> textures = DisplayFactory.Global.textures;
+            List<SuperTexture> textures = DisplayFactory.Global.data;
             foreach(SuperTexture tex in textures)
             {
-                this.spriteBatch.Draw(tex.texture, tex.drawRect, Color.White);
+                if(tex.visible)
+                {
+                    this.spriteBatch.Draw(tex.texture, tex.drawRect, null, Color.White, 0.0f, new Vector2(0, 0), SpriteEffects.None, tex.zOrder);
+                    //this.spriteBatch.DrawString(this.font, string.Format("{0}", tex.zOrder), new Vector2(tex.drawRect.X, tex.drawRect.Y), Color.Green);
+                }
             }
 
             this.spriteBatch.End();

@@ -1,0 +1,118 @@
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
+using SuperMtgPlayer.Data;
+using SuperMtgPlayer.Factories;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace SuperMtgPlayer.Display
+{
+    public class CardDisplay
+    {
+        private Vector4 dimensions = new Vector4(0, 0, 184, 256);
+        private Vector4 dimensionsTarget = new Vector4(0, 0, 184, 256);
+        private Rectangle displayRect = new Rectangle();
+
+        public const int Growth = 60;
+        public const float BlendSpeed = 15.0f;
+
+        public static Rectangle baseDimensions = new Rectangle(0, 0, 184, 256);
+        public bool isHighlighted = false;
+        public BlendableFloat scale = BlendableFloatFactory.Global.Create();
+        private Point Location = new Point();
+        public BlendablePoint TargetLocation = new BlendablePoint();
+        public SuperTexture texture;
+
+        public Rectangle DisplayRect
+        {
+            get { return displayRect; }
+        }
+
+        public CardDisplay()
+        {
+            this.scale.currentValue = 1.0f;
+            this.scale.targetValue = 1.0f;
+            this.scale.initValue = 1.0f;
+            this.scale.BlendSpeed = 15.0f;
+        }
+
+        public float BaseDimWidth()
+        {
+            return CardDisplay.baseDimensions.Width * this.scale.initValue;
+        }
+
+        public void Init(SuperTexture _texture)
+        {
+            this.texture = _texture;
+        }
+
+        public void MoveNow()
+        {
+
+        }
+
+        public void Update(GameTime gt)
+        {
+            // Update logic
+            MouseState mouse = Mouse.GetState();
+            if((mouse.Position.X <= this.displayRect.X + this.displayRect.Width) &&
+               (mouse.Position.X >= this.displayRect.X ) &&
+               (mouse.Position.Y <= this.displayRect.Y + this.displayRect.Height) &&
+               (mouse.Position.Y >= this.displayRect.Y))
+            {
+                this.isHighlighted = true;
+            }
+            else
+            {
+                this.isHighlighted = false;
+            }
+
+            if(this.isHighlighted)
+            {
+                this.dimensionsTarget.X = -CardDisplay.Growth / 2;
+                this.dimensionsTarget.Y = -CardDisplay.Growth / 2;
+                this.dimensionsTarget.W = baseDimensions.Width + CardDisplay.Growth;
+                this.dimensionsTarget.Z = baseDimensions.Height + CardDisplay.Growth;
+
+                this.texture.zOrder = 0.0f;
+                this.scale.targetValue = 1.0f;
+            }
+            else
+            {
+                this.dimensionsTarget.X = 0;
+                this.dimensionsTarget.Y = 0;
+                this.dimensionsTarget.W = baseDimensions.Width;
+                this.dimensionsTarget.Z = baseDimensions.Height;
+
+                this.texture.zOrder = 1.0f;
+                this.scale.targetValue = this.scale.initValue;
+            }
+
+            // Blend to target size
+            this.dimensions.X += ((this.dimensionsTarget.X - this.dimensions.X) * CardDisplay.BlendSpeed) * gt.ElapsedGameTime.Milliseconds / 1000.0f;
+            this.dimensions.Y += ((this.dimensionsTarget.Y - this.dimensions.Y) * CardDisplay.BlendSpeed) * gt.ElapsedGameTime.Milliseconds / 1000.0f;
+            this.dimensions.W += ((this.dimensionsTarget.W - this.dimensions.W) * CardDisplay.BlendSpeed) * gt.ElapsedGameTime.Milliseconds / 1000.0f;
+            this.dimensions.Z += ((this.dimensionsTarget.Z - this.dimensions.Z) * CardDisplay.BlendSpeed) * gt.ElapsedGameTime.Milliseconds / 1000.0f; 
+
+            // Create display rect
+            displayRect.Width = (int)(dimensions.W * this.scale.currentValue);
+            displayRect.Height = (int)(dimensions.Z * this.scale.currentValue);
+
+            this.Location.X = (int)this.TargetLocation.X.currentValue;
+            this.Location.Y = (int)this.TargetLocation.Y.currentValue;
+
+            displayRect.Location = new Point(this.Location.X + (int)this.dimensions.X, this.Location.Y + (int)this.dimensions.Y);
+
+            this.texture.drawRect = this.DisplayRect;
+        }
+
+        public void Unload()
+        {
+            this.texture.Unload();
+            CardDisplayFactory.Global.Unload(this);
+        }
+    }
+}

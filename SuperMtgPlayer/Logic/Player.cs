@@ -7,12 +7,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SuperMtgPlayer.Logic.Player
+namespace SuperMtgPlayer.Logic
 {
-    public class Player : IPlayer
+    public class Player
     {
-        PlayerDeck deck = new PlayerDeck();
-        PlayerHand hand = new PlayerHand();
+        public PlayerDeck deck = new PlayerDeck();
+        public PlayerHand hand = new PlayerHand();
 
         int handStartSize = 7;
 
@@ -60,6 +60,13 @@ namespace SuperMtgPlayer.Logic.Player
             this.deck.Start();
             this.DrawHand();
         }
+        public void DrawCard()
+        {
+            if (this.deck.library.Count > 0)
+            {
+                this.hand.AddCard(this.deck.Draw());
+            }
+        }
         public void DrawHand()
         {
             this.hand.Reset();
@@ -80,9 +87,10 @@ namespace SuperMtgPlayer.Logic.Player
         {
             return this.hand.Hand;
         }
-        public void Update(GameTime gt)
+        public void Update(GameTime gt, GraphicsDeviceManager graphics)
         {
-            this.hand.UpdateDisplay();
+            this.hand.Update();
+            this.hand.UpdateDisplay(graphics);
         }
     }
 }

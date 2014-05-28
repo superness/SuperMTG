@@ -39,18 +39,31 @@
     <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="BlendablePoint.cs" />
     <Compile Include="ContentManager.cs" />
+    <Compile Include="Data\BlendableFloat.cs" />
     <Compile Include="Data\CardDataWrapper.cs" />
+    <Compile Include="Data\CardInPlay.cs" />
     <Compile Include="Data\PlayableCard.cs" />
     <Compile Include="Data\PlayerDeck.cs" />
     <Compile Include="Data\PlayerHand.cs" />
-    <Compile Include="Display\DisplayFactory.cs" />
+    <Compile Include="Display\CardDisplay.cs" />
+    <Compile Include="Factories\BlendableFloatFactory.cs" />
+    <Compile Include="Factories\CardDisplayFactory.cs" />
+    <Compile Include="Factories\CardInPlayFactory.cs" />
+    <Compile Include="Factories\DisplayFactory.cs" />
     <Compile Include="Display\SuperTexture.cs" />
+    <Compile Include="Factories\FactoryBase.cs" />
     <Compile Include="Game1.cs" />
-    <Compile Include="Logic\Player\IPlayer.cs" />
-    <Compile Include="Logic\Player\Player.cs" />
+    <Compile Include="Globals.cs" />
+    <Compile Include="Logic\Battlefield.cs" />
+    <Compile Include="Logic\CardPlayer.cs" />
+    <Compile Include="Logic\Player.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Singleton.cs" />
+    <Compile Include="SuperKeyboard.cs" />
+    <Compile Include="SuperMouse.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="MonoGame.Framework">

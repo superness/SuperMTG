@@ -11,12 +11,12 @@ namespace SuperMtgPlayer.Data
 {
     public class PlayableCard
     {
-        private OutputCard card;
         private int id;
 
         private static int currentId = 0;
 
-        public SuperTexture texture;
+        public OutputCard card;
+        public CardDisplay display;
 
         public PlayableCard(OutputCard _card)
         {
@@ -25,13 +25,23 @@ namespace SuperMtgPlayer.Data
             this.id = currentId;
 
             ++PlayableCard.currentId;
+        }
 
-            this.texture = this.GetCardTexture();
+        public void DisplayCard()
+        {
+            this.display = CardDisplayFactory.Global.Create();
+            this.display.Init(this.GetCardTexture());
+
+            this.display.TargetLocation.X.BlendSpeed = 20.0f;
+            this.display.TargetLocation.Y.BlendSpeed = 20.0f;
         }
 
         private SuperTexture GetCardTexture()
         {
-            return DisplayFactory.Global.CreateTexture(string.Format("CardImgs\\{0}.jpg", this.card.multiverseid));
+            SuperTexture texture = DisplayFactory.Global.Create();
+            texture.Load(string.Format("CardImgs\\{0}.jpg", this.card.multiverseid));
+
+            return texture;
         }
 
         public int ID
