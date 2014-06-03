@@ -16,13 +16,13 @@ namespace SuperMtgPlayer.Display
         private Vector4 dimensionsTarget = new Vector4(0, 0, 184, 256);
         private Rectangle displayRect = new Rectangle();
 
-        public const int Growth = 60;
+        public int Growth = 25;
         public const float BlendSpeed = 15.0f;
 
         public static Rectangle baseDimensions = new Rectangle(0, 0, 184, 256);
         public bool isHighlighted = false;
         public BlendableFloat scale = BlendableFloatFactory.Global.Create();
-        private Point Location = new Point();
+        public Point Location = new Point();
         public BlendablePoint TargetLocation = new BlendablePoint();
         public SuperTexture texture;
 
@@ -42,6 +42,10 @@ namespace SuperMtgPlayer.Display
         public float BaseDimWidth()
         {
             return CardDisplay.baseDimensions.Width * this.scale.initValue;
+        }
+        public float BaseDimHeight()
+        {
+            return CardDisplay.baseDimensions.Height * this.scale.initValue;
         }
 
         public void Init(SuperTexture _texture)
@@ -72,13 +76,16 @@ namespace SuperMtgPlayer.Display
 
             if(this.isHighlighted)
             {
-                this.dimensionsTarget.X = -CardDisplay.Growth / 2;
-                this.dimensionsTarget.Y = -CardDisplay.Growth / 2;
-                this.dimensionsTarget.W = baseDimensions.Width + CardDisplay.Growth;
-                this.dimensionsTarget.Z = baseDimensions.Height + CardDisplay.Growth;
+                int growthWidth = (int)(baseDimensions.Width * this.Growth / 100.0f);
+                int growthHeight = (int)(baseDimensions.Height * this.Growth / 100.0f);
 
-                this.texture.zOrder = 0.0f;
-                this.scale.targetValue = 1.0f;
+                this.dimensionsTarget.X = -growthWidth / 2 * this.scale.currentValue;
+                this.dimensionsTarget.Y = -growthHeight * this.scale.currentValue;
+                this.dimensionsTarget.W = baseDimensions.Width + growthWidth;
+                this.dimensionsTarget.Z = baseDimensions.Height + growthHeight;
+
+                this.texture.zOrder = 0.001f;
+                //this.scale.targetValue = 1.0f;
             }
             else
             {
@@ -88,7 +95,7 @@ namespace SuperMtgPlayer.Display
                 this.dimensionsTarget.Z = baseDimensions.Height;
 
                 this.texture.zOrder = 1.0f;
-                this.scale.targetValue = this.scale.initValue;
+                //this.scale.targetValue = this.scale.initValue;
             }
 
             // Blend to target size
@@ -104,7 +111,7 @@ namespace SuperMtgPlayer.Display
             this.Location.X = (int)this.TargetLocation.X.currentValue;
             this.Location.Y = (int)this.TargetLocation.Y.currentValue;
 
-            displayRect.Location = new Point(this.Location.X + (int)this.dimensions.X, this.Location.Y + (int)this.dimensions.Y);
+            displayRect.Location = new Point(this.Location.X + (int)(this.dimensions.X), this.Location.Y + (int)(this.dimensions.Y));
 
             this.texture.drawRect = this.DisplayRect;
         }

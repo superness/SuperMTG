@@ -92,5 +92,10 @@ namespace SuperMtgPlayer.Logic
             this.hand.Update();
             this.hand.UpdateDisplay(graphics);
         }
+
+        public void OnPriority()
+        {
+
+        }
     }
 }

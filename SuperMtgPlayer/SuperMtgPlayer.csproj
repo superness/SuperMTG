@@ -58,7 +58,11 @@
     <Compile Include="Globals.cs" />
     <Compile Include="Logic\Battlefield.cs" />
     <Compile Include="Logic\CardPlayer.cs" />
+    <Compile Include="Logic\CurrentTurn.cs" />
+    <Compile Include="Logic\ManaPool.cs" />
+    <Compile Include="Logic\PhaseLogic.cs" />
     <Compile Include="Logic\Player.cs" />
+    <Compile Include="Logic\PriorityLayer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Singleton.cs" />

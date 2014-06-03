@@ -23,11 +23,18 @@ namespace SuperMtgPlayer
     /// </summary>
     public class Game1 : Game
     {
-        GraphicsDeviceManager graphics;
+        public GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         CardDataWrapper cardData;
-        Player player = new Player();
+        public Player player = new Player();
         SpriteFont font;
+
+        private static Game1 g = null;
+
+        public static Game1 Global
+        {
+            get { return Game1.g; }
+        }
 
         public Game1()
             : base()
@@ -42,6 +49,8 @@ namespace SuperMtgPlayer
             this.IsMouseVisible = true;
 
             Globals.Global.localPlayer = player;
+
+            g = this;
         }
 
         /// <summary>
@@ -192,9 +201,19 @@ namespace SuperMtgPlayer
                 if(tex.visible)
                 {
                     this.spriteBatch.Draw(tex.texture, tex.drawRect, null, Color.White, 0.0f, new Vector2(0, 0), SpriteEffects.None, tex.zOrder);
-                    //this.spriteBatch.DrawString(this.font, string.Format("{0}", tex.zOrder), new Vector2(tex.drawRect.X, tex.drawRect.Y), Color.Green);
                 }
             }
+            //foreach(CardDisplay cd in CardDisplayFactory.Global.data)
+            //{
+            //    if(cd.texture.visible)
+            //    {
+            //        this.spriteBatch.DrawString(this.font, string.Format("{0} - {1}", cd.texture.zOrder, cd.scale.currentValue), new Vector2(cd.texture.drawRect.X, cd.texture.drawRect.Y), Color.Green, 0, new Vector2(0, 0), 1.0f, SpriteEffects.None, 0);
+            //        this.spriteBatch.DrawString(this.font, string.Format("{0} - {1}", cd.texture.drawRect.Width, cd.texture.drawRect.Height), new Vector2(cd.texture.drawRect.X, cd.texture.drawRect.Y + 20), Color.Green, 0, new Vector2(0, 0), 1.0f, SpriteEffects.None, 0);
+            //        this.spriteBatch.DrawString(this.font, string.Format("{0} - {1}", cd.texture.drawRect.Left, cd.texture.drawRect.Top), new Vector2(cd.texture.drawRect.X, cd.texture.drawRect.Y + 40), Color.Green, 0, new Vector2(0, 0), 1.0f, SpriteEffects.None, 0);
+            //    }
+            //}
+
+            //this.spriteBatch.DrawString(this.font, string.Format("Land: {0}, Perm: {1}", Battlefield.Global.LandLine, Battlefield.Global.PermLine), new Vector2(0, 0), Color.White);
 
             this.spriteBatch.End();
 
