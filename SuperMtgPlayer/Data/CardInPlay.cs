@@ -53,10 +53,34 @@ namespace SuperMtgPlayer.Data
             {
                 if(this.display.isHighlighted)
                 {
-                    // Tap dat ass
-                    this.Tapped = !this.Tapped;
+                    // A card was clicked
+
+                    // Handle declaring attackers
+
+                    // Otherwise activate abilities
+                    if(this.Tapped == false)
+                    {
+                        ActivatedAbility[] tapAbilities = this.GetActivatedAbilitiesOfType(ActivatedAbility.AbilityType.Tap, this.cardData);
+                        if(tapAbilities != null)
+                        {
+                            // Tap dat ass
+                            this.Tapped = true;
+                            this.display.canFocus = false;
+                            Battlefield.Global.ActivateAbility(this.cardData.activatedAbilities[0], this);
+                        }
+                    }
                 }
             }
+        }
+
+        private ActivatedAbility[] GetActivatedAbilitiesOfType(ActivatedAbility.AbilityType type, OutputCard card)
+        {
+            if(card.activatedAbilities != null)
+            {
+                return (ActivatedAbility[])card.activatedAbilities.Where((x) => x.type == type).ToArray();
+            }
+
+            return null;
         }
 
         private SuperTexture GetCardTexture()

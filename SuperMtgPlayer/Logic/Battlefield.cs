@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Super;
 using SuperMtgPlayer.Data;
 using SuperMtgPlayer.Display;
 using SuperMtgPlayer.Factories;
@@ -140,9 +141,49 @@ namespace SuperMtgPlayer.Logic
 
         }
 
-        public void ProcessTriggerType(Super.TriggeredAbility.TriggerType type)
+        public void ProcessTriggerType(TriggeredAbility.TriggerType type, CardInPlay card = null)
         {
+            switch(type)
+            {
+                case TriggeredAbility.TriggerType.Tapped:
+                    if(card != null && card.triggeredAbilities != null)
+                    {
+                        foreach(TriggeredAbility ability in card.cardData.triggeredAbilties)
+                        {
+                            if(ability.type == TriggeredAbility.TriggerType.Tapped)
+                            {
 
+                            }
+                        }
+                    }
+                    break;
+            }
+        }
+
+        public void ActivateAbility(ActivatedAbility ability, CardInPlay card)
+        {
+            if (ability != null)
+            {
+                switch (ability.type)
+                {
+                    case ActivatedAbility.AbilityType.Tap:
+                        foreach(Super.Action action in ability.actions)
+                        {
+                            this.ProcessAction(action);
+                        }
+                        break;
+                }
+            }
+        }
+
+        private void ProcessAction(Super.Action action)
+        {
+            switch(action.type)
+            {
+                case Super.Action.ActionType.AddMana:
+                    ManaPool.Global.AddToPool(action.cost);
+                    break;
+            }
         }
     }
 }

@@ -52,7 +52,10 @@ namespace SuperMtgPlayer.Logic
                 }
             }
 
-            return this.ManaInPool[ManaType.Colorless] >= (convertedMana[ManaType.Colorless] + xValue);
+            if (convertedMana.ContainsKey(ManaType.Colorless))
+                return this.ManaInPool[ManaType.Colorless] >= (convertedMana[ManaType.Colorless] + xValue);
+            else
+                return this.ManaInPool[ManaType.Colorless] >= xValue;
         }
 
         public void RemoveManaFromPool(string manaString, int xValue = 0)

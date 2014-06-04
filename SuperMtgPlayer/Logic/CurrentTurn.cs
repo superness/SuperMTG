@@ -18,7 +18,7 @@ namespace SuperMtgPlayer.Logic
 
         public ActivePlayer CurrentActivePlayer = ActivePlayer.Local;
 
-        public int LandsPerTurn = 2;
+        public int LandsPerTurn = 1;
         public int CurrentLandsPlayed = 0;
 
         public void NextTurn()

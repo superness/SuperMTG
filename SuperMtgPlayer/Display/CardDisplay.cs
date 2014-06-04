@@ -27,6 +27,7 @@ namespace SuperMtgPlayer.Display
         public SuperTexture texture;
 
         public float initScale = 0.0f;
+        public bool canFocus = true;
 
         public Rectangle DisplayRect
         {
@@ -76,7 +77,7 @@ namespace SuperMtgPlayer.Display
                 this.isHighlighted = false;
             }
 
-            if(this.isHighlighted)
+            if(this.isHighlighted && this.canFocus)
             {
                 int growthWidth = (int)(baseDimensions.Width * this.Growth / 100.0f);
                 int growthHeight = (int)(baseDimensions.Height * this.Growth / 100.0f);
@@ -123,10 +124,5 @@ namespace SuperMtgPlayer.Display
             this.texture.Unload();
             CardDisplayFactory.Global.Unload(this);
         }
-
-        //private Rectangle RotatedDrawRect()
-        //{
-
-        //}
     }
 }
