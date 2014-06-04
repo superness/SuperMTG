@@ -11,7 +11,6 @@ namespace SuperMtgPlayer.Data
     {
         public float currentValue;
         public float targetValue;
-        public float initValue;
 
         public float BlendSpeed = 1.0f;
 

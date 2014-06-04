@@ -200,7 +200,7 @@ namespace SuperMtgPlayer
             {
                 if(tex.visible)
                 {
-                    this.spriteBatch.Draw(tex.texture, tex.drawRect, null, Color.White, 0.0f, new Vector2(0, 0), SpriteEffects.None, tex.zOrder);
+                    this.spriteBatch.Draw(tex.texture, tex.drawRect, null, Color.White, tex.rotation.currentValue, new Vector2(0, 0), SpriteEffects.None, tex.zOrder);
                 }
             }
             //foreach(CardDisplay cd in CardDisplayFactory.Global.data)

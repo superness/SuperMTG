@@ -29,7 +29,7 @@ namespace SuperMtgPlayer.Logic
             newCard.Init(card, player);
             newCard.Display();
             newCard.display.scale.targetValue = 0.5f;
-            newCard.display.scale.initValue = 0.5f;
+            newCard.display.initScale = 0.5f;
             newCard.display.Growth = InPlayGrowth;
 
             if (Array.IndexOf(newCard.cardData.types, ("Land")) != -1)
@@ -82,7 +82,7 @@ namespace SuperMtgPlayer.Logic
                 foreach (CardInPlay c in cards)
                 {
                     c.display.scale.targetValue = newScale;
-                    c.display.scale.initValue = newScale;
+                    c.display.initScale = newScale;
 
                     c.display.Growth = (int)(InPlayGrowth / scaleDown);
                 }
@@ -101,6 +101,12 @@ namespace SuperMtgPlayer.Logic
 
                 card.display.TargetLocation.X.targetValue = (i * card.display.BaseDimWidth()) + 10 * i + this.BorderLeft;
                 card.display.TargetLocation.Y.targetValue = LandLine;
+                card.display.texture.rotation.targetValue = 0.0f;
+
+                if(card.Tapped)
+                {
+                    this.TapCard(card.display);
+                }
             }
             for (int i = 0; i < this.nonLandsInPlay.Count; ++i)
             {
@@ -109,9 +115,21 @@ namespace SuperMtgPlayer.Logic
 
                 card.display.TargetLocation.X.targetValue = (i * card.display.BaseDimWidth()) + 10 * i + this.BorderLeft;
                 card.display.TargetLocation.Y.targetValue = PermLine;
+
+                if (card.Tapped)
+                {
+                    this.TapCard(card.display);
+                }
             }
         }
 
+        private void TapCard(CardDisplay display)
+        {
+            display.texture.rotation.targetValue = 3.14f / 2.0f;
+            display.TargetLocation.X.targetValue += display.BaseDimHeight();
+            display.TargetLocation.Y.targetValue += display.BaseDimWidth() / 2;
+        }
+        
         public void UntapLocal()
         {
 

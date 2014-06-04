@@ -26,6 +26,8 @@ namespace SuperMtgPlayer.Display
         public BlendablePoint TargetLocation = new BlendablePoint();
         public SuperTexture texture;
 
+        public float initScale = 0.0f;
+
         public Rectangle DisplayRect
         {
             get { return displayRect; }
@@ -35,17 +37,17 @@ namespace SuperMtgPlayer.Display
         {
             this.scale.currentValue = 1.0f;
             this.scale.targetValue = 1.0f;
-            this.scale.initValue = 1.0f;
             this.scale.BlendSpeed = 15.0f;
+            this.initScale = 1.0f;
         }
 
         public float BaseDimWidth()
         {
-            return CardDisplay.baseDimensions.Width * this.scale.initValue;
+            return CardDisplay.baseDimensions.Width * this.initScale;
         }
         public float BaseDimHeight()
         {
-            return CardDisplay.baseDimensions.Height * this.scale.initValue;
+            return CardDisplay.baseDimensions.Height * this.initScale;
         }
 
         public void Init(SuperTexture _texture)
@@ -62,10 +64,10 @@ namespace SuperMtgPlayer.Display
         {
             // Update logic
             MouseState mouse = Mouse.GetState();
-            if((mouse.Position.X <= this.displayRect.X + this.displayRect.Width) &&
-               (mouse.Position.X >= this.displayRect.X ) &&
-               (mouse.Position.Y <= this.displayRect.Y + this.displayRect.Height) &&
-               (mouse.Position.Y >= this.displayRect.Y))
+            if ((mouse.Position.X <= this.texture.drawRect.X + this.texture.drawRect.Width) &&
+               (mouse.Position.X >= this.texture.drawRect.X) &&
+               (mouse.Position.Y <= this.texture.drawRect.Y + this.texture.drawRect.Height) &&
+               (mouse.Position.Y >= this.texture.drawRect.Y))
             {
                 this.isHighlighted = true;
             }
@@ -121,5 +123,10 @@ namespace SuperMtgPlayer.Display
             this.texture.Unload();
             CardDisplayFactory.Global.Unload(this);
         }
+
+        //private Rectangle RotatedDrawRect()
+        //{
+
+        //}
     }
 }

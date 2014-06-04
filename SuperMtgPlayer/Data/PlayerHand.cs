@@ -32,7 +32,7 @@ namespace SuperMtgPlayer.Data
             this.cardsInHand.Add(card);
             card.DisplayCard();
             card.display.scale.targetValue = 0.8f;
-            card.display.scale.initValue = 0.8f;
+            card.display.initScale = 0.8f;
         }
 
         public void PlayCard(PlayableCard card)
@@ -72,7 +72,7 @@ namespace SuperMtgPlayer.Data
             }
 
             if(this.cardsInHand.Count > 0)
-                this.Location = new Point((graphics.PreferredBackBufferWidth - this.HandDisplayWidth()) / 2, graphics.PreferredBackBufferHeight - (int)(CardDisplay.baseDimensions.Height * this.cardsInHand[0].display.scale.initValue) - this.cardsInHand[0].display.Growth / 2);
+                this.Location = new Point((graphics.PreferredBackBufferWidth - this.HandDisplayWidth()) / 2, graphics.PreferredBackBufferHeight - (int)(CardDisplay.baseDimensions.Height * this.cardsInHand[0].display.initScale) - this.cardsInHand[0].display.Growth / 2);
         }
 
         public int HandDisplayWidth()

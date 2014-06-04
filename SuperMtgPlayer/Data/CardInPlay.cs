@@ -17,12 +17,10 @@ namespace SuperMtgPlayer.Data
         public List<TriggeredAbility> triggeredAbilities = new List<TriggeredAbility>();
 
         public OutputCard cardData = null;
-
         public Player owner = null;
-
         public CardDisplay display = null;
-
         public Point startAt = new Point();
+        public bool Tapped = false;
 
         public CardInPlay()
         {
@@ -51,6 +49,14 @@ namespace SuperMtgPlayer.Data
 
         public void Update(GameTime gt)
         {
+            if (SuperMouse.Global.LeftMouseClick())
+            {
+                if(this.display.isHighlighted)
+                {
+                    // Tap dat ass
+                    this.Tapped = !this.Tapped;
+                }
+            }
         }
 
         private SuperTexture GetCardTexture()

@@ -27,9 +27,14 @@ namespace SuperMtgPlayer.Logic
                 if(CurrentTurn.Global.CurrentLandsPlayed < CurrentTurn.Global.LandsPerTurn)
                 {
                     canPlay = true;
+                    CurrentTurn.Global.CurrentLandsPlayed++;
                 }
             }
-
+            else if(ManaPool.Global.HaveManaForSpell(c.card.manaCost))
+            {
+                canPlay = true;
+                ManaPool.Global.RemoveManaFromPool(c.card.manaCost);
+            }
 
             if (canPlay)
             {
