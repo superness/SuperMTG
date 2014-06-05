@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SuperMtgPlayer.Logic
 {
-    public class ManaPool : Singleton<ManaPool>
+    public class ManaPool
     {
         public enum ManaType
         {
@@ -15,7 +15,9 @@ namespace SuperMtgPlayer.Logic
             Red,
             Black,
             Green,
-            Colorless
+            Colorless,
+
+            Count
         }
 
         public Dictionary<ManaType, int> ManaInPool = new Dictionary<ManaType, int>();
@@ -30,6 +32,14 @@ namespace SuperMtgPlayer.Logic
             ManaInPool[ManaType.Colorless] = 0;
         }
 
+        public void EmptyPool()
+        {
+            for(ManaType type = ManaType.White; type < ManaType.Count; ++type)
+            {
+                ManaInPool[type] = 0;
+            }
+        }
+
         public void AddToPool(string manaString)
         {
             Dictionary<ManaType, int> convertedMana = this.ManaStringToDictionary(manaString);
@@ -40,34 +50,74 @@ namespace SuperMtgPlayer.Logic
             }
         }
 
+        private int TotalManaCount(Dictionary<ManaType, int> dictionary)
+        {
+            int numMana = 0;
+            foreach (KeyValuePair<ManaType, int> kvp in dictionary)
+            {
+                numMana += kvp.Value;
+            }
+            return numMana;
+        }
+
         public bool HaveManaForSpell(string manaString, int xValue = 0)
         {
             Dictionary<ManaType, int> convertedMana = this.ManaStringToDictionary(manaString);
 
             foreach(KeyValuePair<ManaType, int> pair in convertedMana)
             {
+                if (pair.Key == ManaType.Colorless)
+                    continue;
+
+                // Make sure we have colored mana
                 if(this.ManaInPool[pair.Key] < pair.Value)
                 {
                     return false;
                 }
             }
 
-            if (convertedMana.ContainsKey(ManaType.Colorless))
-                return this.ManaInPool[ManaType.Colorless] >= (convertedMana[ManaType.Colorless] + xValue);
-            else
-                return this.ManaInPool[ManaType.Colorless] >= xValue;
+            // Check that we have mana to cover colorless cost
+            return this.TotalManaCount(this.ManaInPool) >= (this.TotalManaCount(convertedMana) + xValue);
         }
 
         public void RemoveManaFromPool(string manaString, int xValue = 0)
         {
             Dictionary<ManaType, int> convertedMana = this.ManaStringToDictionary(manaString);
 
-            foreach(KeyValuePair<ManaType, int> pair in convertedMana)
+            foreach (KeyValuePair<ManaType, int> pair in convertedMana)
             {
+                if (pair.Key == ManaType.Colorless)
+                    continue;
+
                 this.ManaInPool[pair.Key] -= pair.Value;
             }
 
-            this.ManaInPool[ManaType.Colorless] -= xValue;
+            // Pay colorless mana
+            int totalColorless = convertedMana.ContainsKey(ManaType.Colorless) ? convertedMana[ManaType.Colorless] + xValue : xValue;
+
+            // Take it from colorless first
+            {
+                int manaTake = Math.Min(totalColorless, this.ManaInPool[ManaType.Colorless]);
+                this.ManaInPool[ManaType.Colorless] -= manaTake;
+                totalColorless -= manaTake;
+            }
+
+            // Then from any other mana
+            Dictionary<ManaType, int> toTake = new Dictionary<ManaType, int>();
+            foreach (KeyValuePair<ManaType, int> pair in this.ManaInPool)
+            {
+                if (totalColorless > 0)
+                {
+                    int manaTake = Math.Min(totalColorless, this.ManaInPool[pair.Key]);
+                    toTake[pair.Key] = manaTake;
+                    totalColorless -= manaTake;
+                }
+            }
+
+            foreach(KeyValuePair<ManaType, int> pair in toTake)
+            {
+                this.ManaInPool[pair.Key] -= pair.Value;
+            }
         }
 
         private Dictionary<ManaType, int> ManaStringToDictionary(string manaString)

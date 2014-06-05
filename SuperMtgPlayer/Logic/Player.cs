@@ -13,6 +13,9 @@ namespace SuperMtgPlayer.Logic
     {
         public PlayerDeck deck = new PlayerDeck();
         public PlayerHand hand = new PlayerHand();
+        public ManaPool manaPool = new ManaPool();
+
+        public Common.PlayerType Type = Common.PlayerType.Local;
 
         int handStartSize = 7;
 
@@ -64,7 +67,7 @@ namespace SuperMtgPlayer.Logic
         {
             if (this.deck.library.Count > 0)
             {
-                this.hand.AddCard(this.deck.Draw());
+                this.hand.AddCard(this.deck.Draw(), this);
             }
         }
         public void DrawHand()
@@ -73,7 +76,7 @@ namespace SuperMtgPlayer.Logic
 
             for(int i = 0; i < handStartSize; ++i)
             {
-                this.hand.AddCard(this.deck.Draw());
+                this.hand.AddCard(this.deck.Draw(), this);
             }
         }
         public void Mulligan()
@@ -91,9 +94,18 @@ namespace SuperMtgPlayer.Logic
         {
             this.hand.Update();
             this.hand.UpdateDisplay(graphics);
+
+            if (PriorityLayer.Global.CurrentActivePlayer == Common.PlayerType.Local)
+            {
+                // Pass priorty on spacebar
+                if(SuperKeyboard.Global.KeyPress(Microsoft.Xna.Framework.Input.Keys.Space))
+                {
+                    PriorityLayer.Global.PassPriorty();
+                }
+            }
         }
 
-        public void OnPriority()
+        public virtual void OnPriority()
         {
 
         }

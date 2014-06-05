@@ -7,8 +7,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SuperMtgPlayer.Data;
 
-namespace SuperMtgPlayer.Data
+namespace SuperMtgPlayer
 {
     public class PlayerHand
     {
@@ -27,12 +28,15 @@ namespace SuperMtgPlayer.Data
             this.cardsInHand.Clear();
         }
 
-        public void AddCard(PlayableCard card)
+        public void AddCard(PlayableCard card, Player owner)
         {
             this.cardsInHand.Add(card);
+
             card.DisplayCard();
             card.display.scale.targetValue = 0.8f;
             card.display.initScale = 0.8f;
+
+            card.display.texture.visible = owner.Type == Common.PlayerType.Local;
         }
 
         public void PlayCard(PlayableCard card)

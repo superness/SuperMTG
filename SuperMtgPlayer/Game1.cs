@@ -27,6 +27,7 @@ namespace SuperMtgPlayer
         SpriteBatch spriteBatch;
         CardDataWrapper cardData;
         public Player player = new Player();
+        public AIPlayer aiPlayer = new AIPlayer();
         SpriteFont font;
 
         private static Game1 g = null;
@@ -86,10 +87,10 @@ namespace SuperMtgPlayer
             }
 
             this.player.AddCardsToDeck(this.cardData.GetCards(new string[] {
-                                                                                "Mana Confluence",
-                                                                                "Mana Confluence",
-                                                                                "Mana Confluence",
-                                                                                "Mana Confluence",
+                                                                                "Plains",
+                                                                                "Plains",
+                                                                                "Plains",
+                                                                                "Plains",
                                                                                 "Plains",
                                                                                 "Plains",
                                                                                 "Plains",
@@ -139,6 +140,70 @@ namespace SuperMtgPlayer
                                                                                 "Nyx-Fleece Ram",
                                                                                 "Nyx-Fleece Ram",
                                                                                 "Nyx-Fleece Ram",
+                                                                                "Font of Vigor",
+                                                                                "Font of Vigor",
+                                                                                "Font of Vigor",
+                                                                                "Skybind",
+                                                                                "Skybind",
+                                                                                "Quarry Colossus",
+                                                                                "Quarry Colossus"
+                                                                            }), true);
+
+            this.aiPlayer.AddCardsToDeck(this.cardData.GetCards(new string[] {
+                                                                                "Plains",
+                                                                                "Plains",
+                                                                                "Plains",
+                                                                                "Plains",
+                                                                                "Plains",
+                                                                                "Plains",
+                                                                                "Plains",
+                                                                                "Plains",
+                                                                                "Plains",
+                                                                                "Plains",
+                                                                                "Plains",
+                                                                                "Plains",
+                                                                                "Plains",
+                                                                                "Plains",
+                                                                                "Plains",
+                                                                                "Plains",
+                                                                                "Plains",
+                                                                                "Plains",
+                                                                                "Plains",
+                                                                                "Plains",
+                                                                                "Plains",
+                                                                                "Plains",
+                                                                                "Banishing Light",
+                                                                                "Banishing Light",
+                                                                                "Banishing Light",
+                                                                                "Banishing Light",
+                                                                                "Oppressive Rays",
+                                                                                "Oppressive Rays",
+                                                                                "Oppressive Rays",
+                                                                                "Oppressive Rays",
+                                                                                "Ajani's Presence",
+                                                                                "Ajani's Presence",
+                                                                                "Ajani's Presence",
+                                                                                "Dawnbringer Charioteers",
+                                                                                "Dawnbringer Charioteers",
+                                                                                "Dawnbringer Charioteers",
+                                                                                "Godsend",
+                                                                                "Godsend",
+                                                                                "Aegis of the Gods",
+                                                                                "Aegis of the Gods",
+                                                                                "Aegis of the Gods",
+                                                                                "Launch the Fleet",
+                                                                                "Launch the Fleet",
+                                                                                "Launch the Fleet",
+                                                                                "Launch the Fleet",
+                                                                                "Oreskos Swiftclaw",
+                                                                                "Oreskos Swiftclaw",
+                                                                                "Oreskos Swiftclaw",
+                                                                                "Oreskos Swiftclaw",
+                                                                                "Nyx-Fleece Ram",
+                                                                                "Nyx-Fleece Ram",
+                                                                                "Nyx-Fleece Ram",
+                                                                                "Nyx-Fleece Ram",
+                                                                                "Font of Vigor",
                                                                                 "Font of Vigor",
                                                                                 "Font of Vigor",
                                                                                 "Skybind",
@@ -148,6 +213,11 @@ namespace SuperMtgPlayer
                                                                             }), true);
 
             this.player.GameStart();
+            this.aiPlayer.GameStart();
+
+            PhaseLogic.Global.ProcessStep();
+
+            UIFocus.Global.TakeFocus(this);
         }
 
         /// <summary>
@@ -174,12 +244,8 @@ namespace SuperMtgPlayer
             Battlefield.Global.Update(gameTime);
             BlendableFloatFactory.Global.Update(gameTime);
             CardDisplayFactory.Global.Update(gameTime);
+            ChooseAbility.Global.Update();
             this.player.Update(gameTime, graphics);
-
-            if (SuperKeyboard.Global.KeyPress(Keys.Space))
-            {
-                this.player.DrawCard();
-            }
 
             base.Update(gameTime);
         }
@@ -203,17 +269,49 @@ namespace SuperMtgPlayer
                     this.spriteBatch.Draw(tex.texture, tex.drawRect, null, Color.White, tex.rotation.currentValue, new Vector2(0, 0), SpriteEffects.None, tex.zOrder);
                 }
             }
-            //foreach(CardDisplay cd in CardDisplayFactory.Global.data)
-            //{
-            //    if(cd.texture.visible)
-            //    {
-            //        this.spriteBatch.DrawString(this.font, string.Format("{0} - {1}", cd.texture.zOrder, cd.scale.currentValue), new Vector2(cd.texture.drawRect.X, cd.texture.drawRect.Y), Color.Green, 0, new Vector2(0, 0), 1.0f, SpriteEffects.None, 0);
-            //        this.spriteBatch.DrawString(this.font, string.Format("{0} - {1}", cd.texture.drawRect.Width, cd.texture.drawRect.Height), new Vector2(cd.texture.drawRect.X, cd.texture.drawRect.Y + 20), Color.Green, 0, new Vector2(0, 0), 1.0f, SpriteEffects.None, 0);
-            //        this.spriteBatch.DrawString(this.font, string.Format("{0} - {1}", cd.texture.drawRect.Left, cd.texture.drawRect.Top), new Vector2(cd.texture.drawRect.X, cd.texture.drawRect.Y + 40), Color.Green, 0, new Vector2(0, 0), 1.0f, SpriteEffects.None, 0);
-            //    }
-            //}
+            foreach (CardDisplay cd in CardDisplayFactory.Global.data)
+            {
+                if (cd.texture.visible)
+                {
+                    //this.spriteBatch.DrawString(this.font, string.Format("{0}", cd.scale.currentValue), new Vector2(cd.texture.drawRect.X, cd.texture.drawRect.Y + 20), Color.Green, 0, new Vector2(0, 0), 1.0f, SpriteEffects.None, 0);
+                    //this.spriteBatch.DrawString(this.font, string.Format("{0} - {1}", cd.texture.zOrder, cd.scale.currentValue), new Vector2(cd.texture.drawRect.X, cd.texture.drawRect.Y), Color.Green, 0, new Vector2(0, 0), 1.0f, SpriteEffects.None, 0);
+                    //this.spriteBatch.DrawString(this.font, string.Format("{0} - {1}", cd.texture.drawRect.Width, cd.texture.drawRect.Height), new Vector2(cd.texture.drawRect.X, cd.texture.drawRect.Y + 20), Color.Green, 0, new Vector2(0, 0), 1.0f, SpriteEffects.None, 0);
+                    //this.spriteBatch.DrawString(this.font, string.Format("{0} - {1}", cd.texture.drawRect.Left, cd.texture.drawRect.Top), new Vector2(cd.texture.drawRect.X, cd.texture.drawRect.Y + 40), Color.Green, 0, new Vector2(0, 0), 1.0f, SpriteEffects.None, 0);
+                }
+            }
 
             //this.spriteBatch.DrawString(this.font, string.Format("Land: {0}, Perm: {1}", Battlefield.Global.LandLine, Battlefield.Global.PermLine), new Vector2(0, 0), Color.White);
+
+            string manaString = "";
+            foreach(KeyValuePair<SuperMtgPlayer.Logic.ManaPool.ManaType, int> kvp in Game1.Global.player.manaPool.ManaInPool)
+            {
+                manaString += string.Format("[{0}:{1}] ", kvp.Key, kvp.Value);
+            }
+            this.spriteBatch.DrawString(this.font, manaString, new Vector2(0, 0), Color.Aqua);
+            this.spriteBatch.DrawString(this.font, string.Format("Library: {0}", this.player.deck.library.Count), new Vector2(0, 20), Color.Aqua);
+            this.spriteBatch.DrawString(this.font, string.Format("Step: {0} [{1}]", PhaseLogic.Global.CurrentStep, CurrentTurn.Global.CurrentActivePlayer), new Vector2(0, 40), Color.Aqua);
+            this.spriteBatch.DrawString(this.font, string.Format("Priority: {0}", PriorityLayer.Global.CurrentActivePlayer), new Vector2(0, 60), Color.Aqua);
+
+            // Opponent stats
+            string oppManaString = "";
+            foreach (KeyValuePair<SuperMtgPlayer.Logic.ManaPool.ManaType, int> kvp in Game1.Global.aiPlayer.manaPool.ManaInPool)
+            {
+                oppManaString += string.Format("[{0}:{1}] ", kvp.Key, kvp.Value);
+            }
+            this.spriteBatch.DrawString(this.font, oppManaString, new Vector2(0, 120), Color.Aqua);
+
+            if(ChooseAbility.Global.abilitiesToChoose != null)
+            {
+                int startX = 100;
+                int startY = 400;
+                int i = 0;
+                foreach(ActivatedAbility ability in ChooseAbility.Global.abilitiesToChoose)
+                {
+                    this.spriteBatch.DrawString(this.font, string.Format("{0} - {1}", i, ability), new Vector2(startX, startY), Color.Aqua);
+                    startY += 30;
+                    ++i;
+                }
+            }
 
             this.spriteBatch.End();
 

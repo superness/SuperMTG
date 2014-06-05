@@ -22,5 +22,10 @@ namespace SuperMtgPlayer
         {
             return currentState.LeftButton == ButtonState.Pressed && previousState.LeftButton == ButtonState.Released;
         }
+
+        public bool RightMouseClick()
+        {
+            return currentState.RightButton == ButtonState.Pressed && previousState.RightButton == ButtonState.Released;
+        }
     }
 }

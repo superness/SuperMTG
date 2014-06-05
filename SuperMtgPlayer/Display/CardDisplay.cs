@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Input;
 using SuperMtgPlayer.Data;
 using SuperMtgPlayer.Factories;
+using SuperMtgPlayer.Logic;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -68,7 +69,7 @@ namespace SuperMtgPlayer.Display
             if ((mouse.Position.X <= this.texture.drawRect.X + this.texture.drawRect.Width) &&
                (mouse.Position.X >= this.texture.drawRect.X) &&
                (mouse.Position.Y <= this.texture.drawRect.Y + this.texture.drawRect.Height) &&
-               (mouse.Position.Y >= this.texture.drawRect.Y))
+               (mouse.Position.Y >= this.texture.drawRect.Y) && UIFocus.Global.FocusObj == Game1.Global)
             {
                 this.isHighlighted = true;
             }

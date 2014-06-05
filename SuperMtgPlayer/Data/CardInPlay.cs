@@ -32,8 +32,14 @@ namespace SuperMtgPlayer.Data
             this.cardData = card.card;
             this.owner = _owner;
 
+            card.display.texture.visible = true;
+
             this.startAt.X = (int)card.display.TargetLocation.X.currentValue;
             this.startAt.Y = (int)card.display.TargetLocation.Y.currentValue;
+
+            this.staticAbilities = card.card.staticAbilities != null ? card.card.staticAbilities.ToList() : new List<StaticAbility>();
+            this.activatedAbilities = card.card.activatedAbilities != null ? card.card.activatedAbilities.ToList() : new List<ActivatedAbility>();
+            this.triggeredAbilities = card.card.triggeredAbilties != null ? card.card.triggeredAbilties.ToList() : new List<TriggeredAbility>();
         }
 
         public void Display()
@@ -47,28 +53,21 @@ namespace SuperMtgPlayer.Data
             this.display.TargetLocation.Y.currentValue = this.startAt.Y;
         }
 
+        public void ActivateAbility(ActivatedAbility ability)
+        {
+            if(this.cardData.activatedAbilities.Contains(ability))
+            {
+                Battlefield.Global.ActivateAbility(ability, this);
+            }
+        }
+
         public void Update(GameTime gt)
         {
-            if (SuperMouse.Global.LeftMouseClick())
+            if (SuperMouse.Global.RightMouseClick())
             {
                 if(this.display.isHighlighted)
                 {
-                    // A card was clicked
-
-                    // Handle declaring attackers
-
-                    // Otherwise activate abilities
-                    if(this.Tapped == false)
-                    {
-                        ActivatedAbility[] tapAbilities = this.GetActivatedAbilitiesOfType(ActivatedAbility.AbilityType.Tap, this.cardData);
-                        if(tapAbilities != null)
-                        {
-                            // Tap dat ass
-                            this.Tapped = true;
-                            this.display.canFocus = false;
-                            Battlefield.Global.ActivateAbility(this.cardData.activatedAbilities[0], this);
-                        }
-                    }
+                    ChooseAbility.Global.ShowCard(this);
                 }
             }
         }

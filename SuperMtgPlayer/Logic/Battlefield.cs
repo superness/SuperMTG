@@ -14,17 +14,33 @@ namespace SuperMtgPlayer.Logic
 {
     public class Battlefield : Singleton<Battlefield>
     {
-
-        public int PermLine = 425;
-        public int LandLine = 600;
+        public int LocalPermLine = 450;
+        public int LocalLandLine = 600;
+        public int RemotePermLine = 250;
+        public int RemoteLandLine = 25;
         public int BorderLeft = 200;
 
-        public List<CardInPlay> nonLandsInPlay = new List<CardInPlay>();
-        private List<CardInPlay> landsInPlay = new List<CardInPlay>();
+        public List<CardInPlay> localNonLandsInPlay = new List<CardInPlay>();
+        public List<CardInPlay> localLandsInPlay = new List<CardInPlay>();
+
+        public List<CardInPlay> remoteNonLandsInPlay = new List<CardInPlay>();
+        public List<CardInPlay> remoteLandsInPlay = new List<CardInPlay>();
 
         private const int InPlayGrowth = 100;
 
         public void PutCardIntoPlayForPlayer(PlayableCard card, Player player)
+        {
+            if(player.Type == Common.PlayerType.Local)
+            {
+                this.PutCardIntoPlayForPlayerInternal(card, player, this.localLandsInPlay, this.localNonLandsInPlay);
+            }
+            else
+            {
+                this.PutCardIntoPlayForPlayerInternal(card, player, this.remoteLandsInPlay, this.remoteNonLandsInPlay);
+            }
+        }
+
+        private void PutCardIntoPlayForPlayerInternal(PlayableCard card, Player player, List<CardInPlay> storageLands, List<CardInPlay> storageNonLands)
         {
             CardInPlay newCard = CardInPlayFactory.Global.Create();
             newCard.Init(card, player);
@@ -35,25 +51,31 @@ namespace SuperMtgPlayer.Logic
 
             if (Array.IndexOf(newCard.cardData.types, ("Land")) != -1)
             {
-                this.landsInPlay.Add(newCard);
+                storageLands.Add(newCard);
             }
             else
             {
-                this.nonLandsInPlay.Add(newCard);
+                storageNonLands.Add(newCard);
             }
         }
 
         public void FitCardsToScreen()
         {
-            ScaleCardsInPlay(this.landsInPlay);
-            ScaleCardsInPlay(this.nonLandsInPlay);
+            ScaleCardsInPlay(this.localLandsInPlay);
+            ScaleCardsInPlay(this.localNonLandsInPlay);
+            ScaleCardsInPlay(this.remoteLandsInPlay);
+            ScaleCardsInPlay(this.remoteNonLandsInPlay);
         }
 
         private void SetLines()
         {
-            if(this.landsInPlay.Count > 0 && this.nonLandsInPlay.Count > 0)
+            if (this.localLandsInPlay.Count > 0 && this.localNonLandsInPlay.Count > 0)
             {
-                this.LandLine = (int)(this.PermLine + CardDisplay.baseDimensions.Height * 0.7f) + 5;
+                this.LocalLandLine = (int)(this.LocalPermLine + CardDisplay.baseDimensions.Height * 0.7f) + 5;
+            }
+            if (this.remoteNonLandsInPlay.Count > 0 && this.remoteLandsInPlay.Count > 0)
+            {
+                this.RemotePermLine = (int)(this.RemoteLandLine + CardDisplay.baseDimensions.Height * 0.7f) + 20;
             }
         }
 
@@ -95,27 +117,38 @@ namespace SuperMtgPlayer.Logic
             this.SetLines();
             this.FitCardsToScreen();
 
-            for (int i = 0; i < this.landsInPlay.Count; ++i)
+            foreach (CardInPlay card in this.localLandsInPlay)
             {
-                CardInPlay card = this.landsInPlay[i];
                 card.Update(gt);
-
-                card.display.TargetLocation.X.targetValue = (i * card.display.BaseDimWidth()) + 10 * i + this.BorderLeft;
-                card.display.TargetLocation.Y.targetValue = LandLine;
-                card.display.texture.rotation.targetValue = 0.0f;
-
-                if(card.Tapped)
-                {
-                    this.TapCard(card.display);
-                }
             }
-            for (int i = 0; i < this.nonLandsInPlay.Count; ++i)
+            foreach (CardInPlay card in this.localNonLandsInPlay)
             {
-                CardInPlay card = this.nonLandsInPlay[i];
                 card.Update(gt);
+            }
+            foreach (CardInPlay card in this.remoteLandsInPlay)
+            {
+                card.Update(gt);
+            }
+            foreach (CardInPlay card in this.remoteNonLandsInPlay)
+            {
+                card.Update(gt);
+            }
+
+            this.OrderCardList(this.localLandsInPlay, this.LocalLandLine);
+            this.OrderCardList(this.localNonLandsInPlay, this.LocalPermLine);
+            this.OrderCardList(this.remoteLandsInPlay, this.RemoteLandLine);
+            this.OrderCardList(this.remoteNonLandsInPlay, this.RemotePermLine);
+        }
+
+        private void OrderCardList(List<CardInPlay> cards, int atY)
+        {
+            for (int i = 0; i < cards.Count; ++i)
+            {
+                CardInPlay card = cards[i];
 
                 card.display.TargetLocation.X.targetValue = (i * card.display.BaseDimWidth()) + 10 * i + this.BorderLeft;
-                card.display.TargetLocation.Y.targetValue = PermLine;
+                card.display.TargetLocation.Y.targetValue = atY;
+                card.display.texture.rotation.targetValue = 0.0f;
 
                 if (card.Tapped)
                 {
@@ -133,12 +166,20 @@ namespace SuperMtgPlayer.Logic
         
         public void UntapLocal()
         {
-
+            foreach (CardInPlay card in this.localLandsInPlay)
+            {
+                card.Tapped = false;
+                card.display.canFocus = true;
+            }
         }
 
         public void UntapRemote()
         {
-
+            foreach(CardInPlay card in this.remoteLandsInPlay)
+            {
+                card.Tapped = false;
+                card.display.canFocus = true;
+            }
         }
 
         public void ProcessTriggerType(TriggeredAbility.TriggerType type, CardInPlay card = null)
@@ -164,24 +205,34 @@ namespace SuperMtgPlayer.Logic
         {
             if (ability != null)
             {
+                // Activate abilities
+                foreach (Super.Action action in ability.actions)
+                {
+                    this.ProcessAction(action, card.owner);
+                }
+
+                // Pay costs
                 switch (ability.type)
                 {
+                    case ActivatedAbility.AbilityType.PayTap:
+                        Game1.Global.player.manaPool.RemoveManaFromPool(ability.cost);
+                        card.Tapped = true;
+                        card.display.canFocus = false;
+                        break;
                     case ActivatedAbility.AbilityType.Tap:
-                        foreach(Super.Action action in ability.actions)
-                        {
-                            this.ProcessAction(action);
-                        }
+                        card.Tapped = true;
+                        card.display.canFocus = false;
                         break;
                 }
             }
         }
 
-        private void ProcessAction(Super.Action action)
+        private void ProcessAction(Super.Action action, Player owner)
         {
             switch(action.type)
             {
                 case Super.Action.ActionType.AddMana:
-                    ManaPool.Global.AddToPool(action.cost);
+                    owner.manaPool.AddToPool(action.cost);
                     break;
             }
         }

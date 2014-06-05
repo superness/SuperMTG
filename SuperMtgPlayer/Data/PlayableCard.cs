@@ -6,8 +6,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SuperMtgPlayer.Data;
 
-namespace SuperMtgPlayer.Data
+namespace SuperMtgPlayer
 {
     public class PlayableCard
     {

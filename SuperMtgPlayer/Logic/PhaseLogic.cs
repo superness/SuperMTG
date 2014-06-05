@@ -69,6 +69,10 @@ namespace SuperMtgPlayer.Logic
 
         public void NextStep()
         {
+            // Empty mana from pools
+            Game1.Global.player.manaPool.EmptyPool();
+            Game1.Global.aiPlayer.manaPool.EmptyPool();
+
             // Increment current step
             this.CurrentStep++;
 
@@ -78,12 +82,14 @@ namespace SuperMtgPlayer.Logic
                 CurrentTurn.Global.NextTurn();
                 this.CurrentStep = Step.Beginning_Untap;
             }
+
+            this.ProcessStep();
         }
 
         // Steps
         private static void BeginningUntap()
         {
-            if(CurrentTurn.Global.CurrentActivePlayer == CurrentTurn.ActivePlayer.Local)
+            if (CurrentTurn.Global.CurrentActivePlayer == Common.PlayerType.Local)
             {
                 Battlefield.Global.UntapLocal();
             }
@@ -91,6 +97,8 @@ namespace SuperMtgPlayer.Logic
             {
                 Battlefield.Global.UntapRemote();
             }
+
+            PhaseLogic.Global.NextStep();
         }
 
         private static void BeginningUpkeep()
@@ -102,7 +110,14 @@ namespace SuperMtgPlayer.Logic
 
         private static void BeginningDraw()
         {
-            Game1.Global.player.DrawCard();
+            if(CurrentTurn.Global.CurrentActivePlayer == Common.PlayerType.Local)
+            {
+                Game1.Global.player.DrawCard();
+            }
+            else
+            {
+                Game1.Global.aiPlayer.DrawCard();
+            }
             Battlefield.Global.ProcessTriggerType(TriggeredAbility.TriggerType.AtBeginingOfDrawStep);
             CardPlayer.Global.CurrentPlaySpeed = CardPlayer.PlaySpeed.Instant;
             PriorityLayer.Global.GivePriority();
@@ -137,6 +152,7 @@ namespace SuperMtgPlayer.Logic
         private static void CombatDamage()
         {
             // Deal damage
+            PhaseLogic.Global.NextStep();
         }
 
         private static void CombatEnd()
@@ -162,6 +178,7 @@ namespace SuperMtgPlayer.Logic
         private static void EndCleanup()
         {
             // Cleanup
+            PhaseLogic.Global.NextStep(); // TODO remove
         }
         // End Steps
     }
